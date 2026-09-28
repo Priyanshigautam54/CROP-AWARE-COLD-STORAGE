@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CROP-AWARE Cold Storage — Advanced Solar Cold Storage Digital Twin</title>
+
+<style>
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #07111f;
+    color: #e5f4ff;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+}
+
+/* =========================================================
+   MAIN LAYOUT
+========================================================= */
+
+.app {
+    width: 100%;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+}
+
+/* =========================================================
+   LEFT SIDE
+========================================================= */
+
+.main-panel {
+    position: relative;
+    min-width: 0;
+    height: 100vh;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 30% 20%, rgba(0, 170, 255, 0.12), transparent 35%),
+        linear-gradient(135deg, #07111f, #0a1828);
+}
+
+.header {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: rgba(4,12,22,0.75);
+    backdrop-filter: blur(12px);
+}
+
+.logo-area h1 {
+    font-size: 24px;
+    letter-spacing: 1px;
+    color: #7dd3fc;
+}
+
+.logo-area p {
+    margin-top: 5px;
+    color: #8ba4b8;
+    font-size: 12px;
+}
+
+.weather-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.weather-icon {
+    font-size: 30px;
+}
+
+.weather-text {
+    text-align: right;
+}
+
+.weather-text strong {
+    display: block;
+    color: #fff;
+}
+
+.weather-text span {
+    color: #8ba4b8;
+    font-size: 12px;
+}
+
+/* =========================================================
+   DIGITAL TWIN AREA
+========================================================= */
+
+.digital-twin {
+    height: calc(100vh - 80px);
+    position: relative;
+    overflow: hidden;
+}
+
+.scene {
+    position: absolute;
+    inset: 0;
+    padding: 45px;
+}
+
+/* =========================================================
+   STORAGE CHAMBER
+========================================================= */
+
+.chamber {
+    position: absolute;
+    width: 62%;
+    height: 48%;
+    left: 16%;
+    top: 25%;
+    border: 2px solid rgba(125,211,252,0.5);
+    background: rgba(15,35,55,0.7);
+    box-shadow:
+        0 0 35px rgba(0,180,255,0.12),
+        inset 0 0 35px rgba(0,180,255,0.05);
+    transform: perspective(800px) rotateX(3deg);
+}
+
+.chamber::before {
+    content: "";
+    position: absolute;
+    inset: 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.chamber-label {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    font-size: 13px;
+    color: #7dd3fc;
+    letter-spacing: 1px;
+}
+
+.crop-box {
+    position: absolute;
+    bottom: 35px;
+    left: 12%;
+    width: 25%;
+    height: 25%;
+    border: 2px solid #8bc34a;
+    background: rgba(100,160,40,0.16);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #b7e27d;
+    font-size: 13px;
+}
+
+.crop-box.two {
+    left: 43%;
+}
+
+.crop-box.three {
+    left: 74%;
+    width: 15%;
+}
+
+/* =========================================================
+   COOLING UNIT
+========================================================= */
+
+.cooling-unit {
+    position: absolute;
+    right: -105px;
+    top: 30%;
+    width: 125px;
+    height: 130px;
+    border: 2px solid #5ee7ff;
+    background: rgba(5,35,55,0.9);
+    box-shadow: 0 0 25px rgba(0,220,255,0.2);
+}
+
+.cooling-unit::before {
+    content: "❄";
+    position: absolute;
+    font-size: 40px;
+    left: 40px;
+    top: 32px;
+    color: #7dd3fc;
+}
+
+.cooling-unit-label {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    font-size: 10px;
+    color: #8ba4b8;
+}
+
+/* =========================================================
+   SOLAR PANEL
+========================================================= */
+
+.solar-panel {
+    position: absolute;
+    left: 5%;
+    top: 10%;
+    width: 180px;
+    height: 90px;
+    background:
+        linear-gradient(90deg, transparent 49%, rgba(125,211,252,.4) 50%, transparent 51%),
+        linear-gradient(0deg, transparent 49%, rgba(125,211,252,.4) 50%, transparent 51%),
+        #123451;
+    background-size: 45px 45px;
+    border: 2px solid #4aa9d8;
+    transform: skewY(-8deg);
+    box-shadow: 0 0 20px rgba(0,150,255,0.15);
+}
+
+.solar-label {
+    position: absolute;
+    top: 105px;
+    width: 100%;
+    text-align: center;
+    color: #8ba4b8;
+    font-size: 11px;
+}
+
+/* =========================================================
+   BATTERY
+========================================================= */
+
+.battery-box {
+    position: absolute;
+    left: 7%;
+    bottom: 12%;
+    width: 170px;
+    height: 90px;
+    border: 2px solid #65d6a5;
+    background: rgba(15,45,38,.7);
+    padding: 15px;
+}
+
+.battery-title {
+    font-size: 11px;
+    color: #8ba4b8;
+}
+
+.battery-level {
+    margin-top: 12px;
+    height: 15px;
+    border: 1px solid rgba(255,255,255,.2);
+}
+
+.battery-fill {
+    height: 100%;
+    width: 90%;
+    background: #65d6a5;
+    transition: width .4s ease;
+}
+
+/* =========================================================
+   TEMPERATURE DISPLAY
+========================================================= */
+
+.temp-display {
+    position: absolute;
+    right: 7%;
+    bottom: 13%;
+    text-align: center;
+}
+
+.temp-value {
+    font-size: 58px;
+    font-weight: bold;
+    color: #7dd3fc;
+}
+
+.temp-label {
+    font-size: 12px;
+    color: #8ba4b8;
+}
+
+/* =========================================================
+   COOLING BUTTON
+========================================================= */
+
+.cooling-control {
+    position: absolute;
+    left: 50%;
+    bottom: 7%;
+    transform: translateX(-50%);
+}
+
+.cooling-button {
+    border: 1px solid #32d4ff;
+    background: rgba(0,120,170,.15);
+    color: #7dd3fc;
+    padding: 13px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: .2s;
+}
+
+.cooling-button:hover {
+    background: rgba(0,150,210,.3);
+    box-shadow: 0 0 20px rgba(0,200,255,.2);
+}
+
+/* =========================================================
+   RIGHT PANEL
+========================================================= */
+
+.right-panel {
+    height: 100vh;
+
+    /* REQUIRED: RIGHT SIDE SCROLLABLE */
+    max-height: 100vh;
+    overflow-y: auto;
+
+    padding: 22px;
+
+    background: #0b1725;
+    border-left: 1px solid rgba(255,255,255,.08);
+
+    scrollbar-width: thin;
+    scrollbar-color: #28506a #08111c;
+}
+
+.right-panel::-webkit-scrollbar {
+    width: 7px;
+}
+
+.right-panel::-webkit-scrollbar-track {
+    background: #08111c;
+}
+
+.right-panel::-webkit-scrollbar-thumb {
+    background: #28506a;
+    border-radius: 10px;
+}
+
+.panel-title {
+    font-size: 17px;
+    color: #fff;
+    margin-bottom: 18px;
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.card {
+    background: rgba(17,35,53,.8);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 15px;
+}
+
+.card-title {
+    color: #7dd3fc;
+    font-size: 12px;
+    letter-spacing: .8px;
+    margin-bottom: 13px;
+    text-transform: uppercase;
+}
+
+.readout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+}
+
+.readout:last-child {
+    border-bottom: none;
+}
+
+.readout-label {
+    color: #8ba4b8;
+    font-size: 12px;
+}
+
+.readout-value {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.text-green {
+    color: #65d6a5;
+}
+
+.text-amber {
+    color: #f5c76b;
+}
+
+.text-blue {
+    color: #7dd3fc;
+}
+
+.text-red {
+    color: #ff7b7b;
+}
+
+/* =========================================================
+   WEATHER BUTTON
+========================================================= */
+
+.weather-button {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid rgba(125,211,252,.4);
+    border-radius: 7px;
+    background: rgba(125,211,252,.08);
+    color: #bdefff;
+    margin-top: 10px;
+}
+
+.weather-button:hover {
+    background: rgba(125,211,252,.16);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width: 900px) {
+
+    body {
+        overflow: auto;
+    }
+
+    .app {
+        grid-template-columns: 1fr;
+    }
+
+    .main-panel {
+        height: 700px;
+    }
+
+    .digital-twin {
+        height: 620px;
+    }
+
+    .right-panel {
+        height: auto;
+        max-height: 500px;
+    }
+
+    .chamber {
+        width: 65%;
+        left: 12%;
+    }
+}
+
+@media(max-width: 600px) {
+
+    .header {
+        padding: 0 15px;
+    }
+
+    .logo-area h1 {
+        font-size: 18px;
+    }
+
+    .weather-display {
+        display: none;
+    }
+
+    .scene {
+        padding: 20px;
+    }
+
+    .chamber {
+        left: 5%;
+        width: 90%;
+        height: 42%;
+    }
+
+    .solar-panel {
+        width: 130px;
+        height: 70px;
+    }
+
+    .battery-box {
+        left: 4%;
+        bottom: 8%;
+        width: 140px;
+    }
+
+    .temp-display {
+        right: 4%;
+    }
+
+    .temp-value {
+        font-size: 40px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =====================================================
+         LEFT MAIN PANEL
+    ====================================================== -->
+
+    <section class="main-panel">
+
+        <header class="header">
+
+            <div class="logo-area">
+                <h1>CROP-AWARE COLD STORAGE</h1>
+                <p>Advanced Solar Cold Storage Digital Twin</p>
+            </div>
+
+            <div class="weather-display">
+
+                <div class="weather-icon" id="weatherIcon">
+                    ☀️
+                </div>
+
+                <div class="weather-text">
+                    <strong id="weatherName">SUMMER / SUNNY</strong>
+                    <span id="weatherDescription">
+                        High solar generation
+                    </span>
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <div class="digital-twin">
+
+            <div class="scene">
+
+                <!-- SOLAR PANEL -->
+                <div class="solar-panel">
+                    <div class="solar-label">
+                        SOLAR ARRAY
+                    </div>
+                </div>
+
+
+                <!-- STORAGE CHAMBER -->
+                <div class="chamber">
+
+                    <div class="chamber-label">
+                        CROP STORAGE CHAMBER
+                    </div>
+
+                    <div class="crop-box">
+                        CROP A
+                    </div>
+
+                    <div class="crop-box two">
+                        CROP B
+                    </div>
+
+                    <div class="crop-box three">
+                        CROP C
+                    </div>
+
+                    <!-- COOLING UNIT -->
+                    <div class="cooling-unit">
+
+                        <div class="cooling-unit-label">
+                            REFRIGERATION
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- BATTERY -->
+                <div class="battery-box">
+
+                    <div class="battery-title">
+                        BATTERY STORAGE
+                    </div>
+
+                    <div class="battery-level">
+                        <div
+                            class="battery-fill"
+                            id="batteryFill">
+                        </div>
+                    </div>
+
+                    <div style="font-size:11px;margin-top:7px;color:#8ba4b8;">
+                        <span id="batteryValue">92</span>% available
+                    </div>
+
+                </div>
+
+
+                <!-- TEMPERATURE -->
+                <div class="temp-display">
+
+                    <div
+                        class="temp-value"
+                        id="temperature">
+                        28.0°C
+                    </div>
+
+                    <div class="temp-label">
+                        CHAMBER TEMPERATURE
+                    </div>
+
+                </div>
+
+
+                <!-- COOLING CONTROL -->
+                <div class="cooling-control">
+
+                    <button
+                        class="cooling-button"
+                        id="coolingButton"
+                        onclick="toggleCooling()">
+                        ❄ Cooling Power OFF
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         RIGHT SIDE PANEL
+    ====================================================== -->
+
+    <aside class="right-panel">
+
+        <div class="panel-title">
+            SYSTEM MONITOR
+        </div>
+
+
+        <!-- SYSTEM STATUS -->
+        <div class="card">
+
+            <div class="card-title">
+                System Status
+            </div>
+
+            <div class="readout">
+
+                <span class="readout-label">
+                    Cooling
+                </span>
+
+                <span
+                    class="readout-value text-blue"
+                    id="coolingStatus">
+                    OFF
+                </span>
+
+            </div>
+
+
+            <div class="readout">
+
+                <span class="readout-label">
+                    Chamber Temperature
+                </span>
+
+                <span
+                    class="readout-value text-blue"
+                    id="temperatureReadout">
+                    28.0°C
+                </span>
+
+            </div>
+
+
+            <div class="readout">
+
+                <span class="readout-label">
+                    Ambient Temperature
+                </span>
+
+                <span
+                    class="readout-value"
+                    id="ambientTemperature">
+                    32°C
+                </span>
+
+            </div>
+
+
+            <!-- NEW BATTERY STATUS -->
+            <div class="readout">
+
+                <span class="readout-label">
+                    Battery Status
+                </span>
+
+                <span
+                    class="readout-value text-green"
+                    id="batteryStatus">
+                    CHARGING
+                </span>
+
+            </div>
+
+
+            <div class="readout">
+
+                <span class="readout-label">
+                    Battery Level
+                </span>
+
+                <span
+                    class="readout-value"
+                    id="batteryReadout">
+                    92%
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- SOLAR -->
+        <div class="card">
+
+            <div class="card-title">
+                Solar Energy
+            </div>
+
+            <div class="readout">
+
+                <span class="readout-label">
+                    Solar Generation
+                </span>
+
+                <span
+                    class="readout-value text-green"
+                    id="solarGeneration">
+                    850 W
+                </span>
+
+            </div>
+
+
+            <div class="readout">
+
+                <span class="readout-label">
+                    Cooling Demand
+                </span>
+
+                <span
+                    class="readout-value"
+                    id="coolingDemand">
+                    35 W
+                </span>
+
+            </div>
+
+
+            <div class="readout">
+
+                <span class="readout-label">
+                    Net Power
+                </span>
+
+                <span
+                    class="readout-value"
+                    id="netPower">
+                    +815 W
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- WEATHER -->
+        <div class="card">
+
+            <div class="card-title">
+                Weather Simulation
+            </div>
+
+            <div class="readout">
+
+                <span class="readout-label">
+                    Current Mode
+                </span>
+
+                <span
+                    class="readout-value"
+                    id="weatherMode">
+                    SUMMER
+                </span>
+
+            </div>
+
+
+            <div class="readout">
+
+                <span class="readout-label">
+                    Solar Availability
+                </span>
+
+                <span
+                    class="readout-value text-green"
+                    id="solarAvailability">
+                    HIGH
+                </span>
+
+            </div>
+
+
+            <button
+                class="weather-button"
+                onclick="cycleWeather()">
+                Change Weather
+            </button>
+
+        </div>
+
+
+        <!-- CONTROL INFORMATION -->
+        <div class="card">
+
+            <div class="card-title">
+                Cooling Control
+            </div>
+
+            <div style="
+                color:#8ba4b8;
+                font-size:12px;
+                line-height:1.7;
+            ">
+
+                When cooling power is turned
+                <strong style="color:#65d6a5;">
+                    ON
+                </strong>,
+                the chamber temperature gradually
+                decreases toward 4°C.
+
+                <br><br>
+
+                When cooling power is turned
+                <strong style="color:#f5c76b;">
+                    OFF
+                </strong>,
+                the chamber temperature gradually
+                rises toward the ambient temperature.
+
+            </div>
+
+        </div>
+
+
+        <!-- ENERGY LOGIC -->
+        <div class="card">
+
+            <div class="card-title">
+                Energy Logic
+            </div>
+
+            <div style="
+                color:#8ba4b8;
+                font-size:12px;
+                line-height:1.7;
+            ">
+
+                ☀️ <strong style="color:#65d6a5;">
+                Sunny weather:
+                </strong>
+                battery charging.
+
+                <br><br>
+
+                🌧️ <strong style="color:#f5c76b;">
+                Rainy weather:
+                </strong>
+                battery discharging.
+
+                <br><br>
+
+                The battery level is continuously
+                updated according to the selected
+                weather and cooling demand.
+
+            </div>
+
+        </div>
+
+    </aside>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   CROP-AWARE COLD STORAGE
+   DIGITAL TWIN SIMULATION
+========================================================= */
+
+
+/* ---------------------------------------------------------
+   SYSTEM STATE
+--------------------------------------------------------- */
+
+let cooling = false;
+
+let weatherMode = 'summer';
+
+let temp = 28;
+
+let battery = 92;
+
+let batteryStatus = 'charging';
+
+
+/* ---------------------------------------------------------
+   WEATHER CONFIGURATION
+--------------------------------------------------------- */
+
+const weatherConfigs = {
+
+    summer: {
+
+        name: 'SUMMER / SUNNY',
+
+        icon: '☀️',
+
+        description: 'High solar generation',
+
+        ambientTemp: 32,
+
+        solar: 850,
+
+        availability: 'HIGH'
+
+    },
+
+
+    winter: {
+
+        name: 'WINTER',
+
+        icon: '❄️',
+
+        description: 'Moderate solar generation',
+
+        ambientTemp: 20,
+
+        solar: 450,
+
+        availability: 'MEDIUM'
+
+    },
+
+
+    rainy: {
+
+        name: 'RAINY',
+
+        icon: '🌧️',
+
+        description: 'Low solar generation',
+
+        ambientTemp: 25,
+
+        solar: 100,
+
+        availability: 'LOW'
+
+    }
+
+};
+
+
+let currentWeather =
+    weatherConfigs[weatherMode];
+
+
+/* ---------------------------------------------------------
+   DOM REFERENCES
+--------------------------------------------------------- */
+
+const temperatureElement =
+    document.getElementById('temperature');
+
+const temperatureReadout =
+    document.getElementById('temperatureReadout');
+
+const ambientTemperature =
+    document.getElementById('ambientTemperature');
+
+const batteryFill =
+    document.getElementById('batteryFill');
+
+const batteryValue =
+    document.getElementById('batteryValue');
+
+const batteryReadout =
+    document.getElementById('batteryReadout');
+
+const batteryStatusElement =
+    document.getElementById('batteryStatus');
+
+const coolingStatus =
+    document.getElementById('coolingStatus');
+
+const coolingDemand =
+    document.getElementById('coolingDemand');
+
+const solarGeneration =
+    document.getElementById('solarGeneration');
+
+const netPower =
+    document.getElementById('netPower');
+
+const weatherName =
+    document.getElementById('weatherName');
+
+const weatherIcon =
+    document.getElementById('weatherIcon');
+
+const weatherDescription =
+    document.getElementById('weatherDescription');
+
+const weatherModeElement =
+    document.getElementById('weatherMode');
+
+const solarAvailability =
+    document.getElementById('solarAvailability');
+
+const coolingButton =
+    document.getElementById('coolingButton');
+
+
+/* ---------------------------------------------------------
+   COOLING CONTROL
+--------------------------------------------------------- */
+
+function toggleCooling() {
+
+    cooling = !cooling;
+
+
+    if (cooling) {
+
+        coolingButton.textContent =
+            '❄ Cooling Power ON';
+
+        coolingStatus.textContent =
+            'ON';
+
+        coolingStatus.className =
+            'readout-value text-green';
+
+    }
+
+    else {
+
+        coolingButton.textContent =
+            '❄ Cooling Power OFF';
+
+        coolingStatus.textContent =
+            'OFF';
+
+        coolingStatus.className =
+            'readout-value text-blue';
+
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   WEATHER CONTROL
+--------------------------------------------------------- */
+
+function cycleWeather() {
+
+    if (weatherMode === 'summer') {
+
+        weatherMode = 'winter';
+
+    }
+
+    else if (weatherMode === 'winter') {
+
+        weatherMode = 'rainy';
+
+    }
+
+    else {
+
+        weatherMode = 'summer';
+
+    }
+
+
+    updateWeatherUI();
+
+}
+
+
+/* ---------------------------------------------------------
+   WEATHER UI
+--------------------------------------------------------- */
+
+function updateWeatherUI() {
+
+    currentWeather =
+        weatherConfigs[weatherMode];
+
+
+    weatherName.textContent =
+        currentWeather.name;
+
+    weatherIcon.textContent =
+        currentWeather.icon;
+
+    weatherDescription.textContent =
+        currentWeather.description;
+
+    weatherModeElement.textContent =
+        weatherMode.toUpperCase();
+
+    solarAvailability.textContent =
+        currentWeather.availability;
+
+    ambientTemperature.textContent =
+        currentWeather.ambientTemp + '°C';
+
+
+    solarGeneration.textContent =
+        currentWeather.solar + ' W';
+
+
+    /*
+     * BATTERY RULE:
+     *
+     * Sunny weather = CHARGING
+     * Rainy weather = DISCHARGING
+     */
+
+    if (weatherMode === 'rainy') {
+
+        batteryStatus =
+            'discharging';
+
+    }
+
+    else {
+
+        batteryStatus =
+            'charging';
+
+    }
+
+
+    batteryStatusElement.textContent =
+        batteryStatus.toUpperCase();
+
+
+    if (batteryStatus === 'charging') {
+
+        batteryStatusElement.className =
+            'readout-value text-green';
+
+    }
+
+    else {
+
+        batteryStatusElement.className =
+            'readout-value text-amber';
+
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   TEMPERATURE SIMULATION
+--------------------------------------------------------- */
+
+function updateTemperature(deltaTime) {
+
+    /*
+     * COOLING POWER ON:
+     * Temperature moves toward 4°C.
+     */
+
+    if (cooling) {
+
+        const targetTemp = 4;
+
+        const temperatureRate = 0.42;
+
+        temp +=
+            (targetTemp - temp) *
+            deltaTime *
+            temperatureRate;
+
+    }
+
+    /*
+     * COOLING POWER OFF:
+     * Temperature moves toward ambient temperature.
+     */
+
+    else {
+
+        const targetTemp =
+            currentWeather.ambientTemp;
+
+        const temperatureRate = 0.16;
+
+        temp +=
+            (targetTemp - temp) *
+            deltaTime *
+            temperatureRate;
+
+    }
+
+
+    temperatureElement.textContent =
+        temp.toFixed(1) + '°C';
+
+    temperatureReadout.textContent =
+        temp.toFixed(1) + '°C';
+
+}
+
+
+/* ---------------------------------------------------------
+   BATTERY SIMULATION
+--------------------------------------------------------- */
+
+function updateBattery(deltaTime) {
+
+    const solar =
+        currentWeather.solar;
+
+
+    /*
+     * Cooling ON consumes more power.
+     */
+
+    const demand =
+        cooling ? 420 : 35;
+
+
+    /*
+     * RAINY WEATHER:
+     * Battery always discharges.
+     */
+
+    let batteryRate;
+
+
+    if (weatherMode === 'rainy') {
+
+        batteryRate = -0.035;
+
+    }
+
+    /*
+     * SUNNY / WINTER:
+     * Solar generation affects charging.
+     */
+
+    else {
+
+        batteryRate =
+            (solar - demand) / 6000;
+
+    }
+
+
+    battery +=
+        batteryRate *
+        deltaTime *
+        60;
+
+
+    /*
+     * Keep battery between 0 and 100.
+     */
+
+    battery =
+        Math.max(
+            0,
+            Math.min(100, battery)
+        );
+
+
+    /*
+     * Update battery UI.
+     */
+
+    batteryFill.style.width =
+        battery + '%';
+
+    batteryValue.textContent =
+        battery.toFixed(0);
+
+    batteryReadout.textContent =
+        battery.toFixed(0) + '%';
+
+
+    /*
+     * Cooling demand.
+     */
+
+    coolingDemand.textContent =
+        demand + ' W';
+
+
+    /*
+     * Net power.
+     */
+
+    const net =
+        solar - demand;
+
+
+    netPower.textContent =
+        (net >= 0 ? '+' : '') +
+        net.toFixed(0) +
+        ' W';
+
+
+    /*
+     * Keep rainy weather marked
+     * as discharging.
+     */
+
+    if (weatherMode === 'rainy') {
+
+        batteryStatus =
+            'discharging';
+
+    }
+
+    else {
+
+        batteryStatus =
+            'charging';
+
+    }
+
+
+    batteryStatusElement.textContent =
+        batteryStatus.toUpperCase();
+
+
+    if (batteryStatus === 'charging') {
+
+        batteryStatusElement.className =
+            'readout-value text-green';
+
+    }
+
+    else {
+
+        batteryStatusElement.className =
+            'readout-value text-amber';
+
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   MAIN SIMULATION LOOP
+--------------------------------------------------------- */
+
+let lastTime =
+    performance.now();
+
+
+function animate(currentTime) {
+
+    const deltaTime =
+        Math.min(
+            (currentTime - lastTime) / 1000,
+            0.1
+        );
+
+
+    lastTime =
+        currentTime;
+
+
+    updateTemperature(deltaTime);
+
+    updateBattery(deltaTime);
+
+
+    requestAnimationFrame(animate);
+
+}
+
+
+/* ---------------------------------------------------------
+   INITIALIZATION
+--------------------------------------------------------- */
+
+updateWeatherUI();
+
+updateTemperature(0);
+
+updateBattery(0);
+
+requestAnimationFrame(animate);
+
+console.log(
+    'CROP-AWARE Cold Storage initialized — Sunny solar mode'
+);
+
+</script>
+
+</body>
+</html>
